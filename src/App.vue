@@ -1,30 +1,14 @@
 <template>
     <div id="app">
         <table>
-            <!-- <tr v-for="index in 3" :key="index">
-                <td
-                    @click="turnClick"
-                    v-for="i in 3"
-                    :key="i"
-                    :class="className"
-                    :id="className+'-'+i+'-'+index"
-                ></td>
-            </tr>-->
-
             <tr>
-                <td class="cell" @click="turnClick" id="0"></td>
-                <td class="cell" @click="turnClick" id="1"></td>
-                <td class="cell" @click="turnClick" id="2"></td>
+                <td @click="turnClick" v-for="i in 3" :key="i-1" :class="className" :id="i-1"></td>
             </tr>
             <tr>
-                <td class="cell" @click="turnClick" id="3"></td>
-                <td class="cell" @click="turnClick" id="4"></td>
-                <td class="cell" @click="turnClick" id="5"></td>
+                <td @click="turnClick" v-for="i in 3" :key="i+2" :class="className" :id="i+2"></td>
             </tr>
             <tr>
-                <td class="cell" @click="turnClick" id="6"></td>
-                <td class="cell" @click="turnClick" id="7"></td>
-                <td class="cell" @click="turnClick" id="8"></td>
+                <td @click="turnClick" v-for="i in 3" :key="i+5" :class="className" :id="i+5"></td>
             </tr>
         </table>
         <div>
@@ -53,7 +37,7 @@ export default {
             origBoard: [],
             huPlayer: "O",
             aiPlayer: "X",
-            endGameText:"Gameover",
+            endGameText: "Gameover",
             winCombos: [
                 [0, 1, 2],
                 [3, 4, 5],
@@ -68,12 +52,12 @@ export default {
     },
     methods: {
         startGame() {
-          this.origBoard = Array.from(Array(9).keys());
-          this.disabled = false;
-          this.cells.forEach(element => {
-              element.innerText = "";
-              element.style.removeProperty("background-color");
-          });
+            this.origBoard = Array.from(Array(9).keys());
+            this.disabled = false;
+            this.cells.forEach(element => {
+                element.innerText = "";
+                element.style.removeProperty("background-color");
+            });
         },
         selectSym(sym) {
             this.huPlayer = sym;
@@ -85,7 +69,10 @@ export default {
             document.querySelector(".selectSym").style.display = "none";
         },
         turnClick(square) {
-            if (typeof this.origBoard[square.target.id] == "number" && !this.disabled) {
+            if (
+                typeof this.origBoard[square.target.id] == "number" &&
+                !this.disabled
+            ) {
                 this.turn(square.target.id, this.huPlayer);
                 if (!this.checkTie()) this.turn(this.bestSpot(), this.aiPlayer);
             }
@@ -144,7 +131,7 @@ export default {
         }
     },
     mounted() {
-        this.cells = document.querySelectorAll(".cell");
+        this.cells = document.querySelectorAll("." + this.className);
         this.startGame();
     }
 };
