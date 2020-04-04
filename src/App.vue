@@ -33,6 +33,7 @@ export default {
             className: "cell",
             gameover: false,
             disabled: false,
+            winner: false,
             cells: null,
             origBoard: [],
             huPlayer: "O",
@@ -74,7 +75,7 @@ export default {
                 !this.disabled
             ) {
                 this.turn(square.target.id, this.huPlayer);
-                if (!this.checkTie()) this.turn(this.bestSpot(), this.aiPlayer);
+                if (!this.checkTie() && !this.winner) this.turn(this.bestSpot(), this.aiPlayer);
             }
         },
         turn(squareId, player) {
@@ -91,7 +92,7 @@ export default {
             return this.emptySquares()[0];
         },
         checkTie() {
-            if (this.emptySquares().length === 0) {
+            if (this.emptySquares().length === 0 && !this.winner) {
                 for (let cell of this.cells) {
                     cell.style.backgroundColor = "green";
                 }
@@ -109,14 +110,14 @@ export default {
                 (a, e, i) => (e === player ? a.concat(i) : a),
                 []
             );
-            let gameWon = null;
+            this.winner = null;
             for (let [index, win] of this.winCombos.entries()) {
                 if (win.every(elem => plays.indexOf(elem) > -1)) {
-                    gameWon = { index: index, player: player };
+                    this.winner = { index: index, player: player };
                     break;
                 }
             }
-            return gameWon;
+            return this.winner;
         },
         gameOver(gameWon) {
             for (let index of this.winCombos[gameWon.index]) {
