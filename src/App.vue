@@ -1,28 +1,79 @@
 <template>
-    <div id="app">
-        <table>
-            <tr>
-                <td @click="turnClick" v-for="i in 3" :key="i-1" :class="className" :id="i-1"></td>
-            </tr>
-            <tr>
-                <td @click="turnClick" v-for="i in 3" :key="i+2" :class="className" :id="i+2"></td>
-            </tr>
-            <tr>
-                <td @click="turnClick" v-for="i in 3" :key="i+5" :class="className" :id="i+5"></td>
-            </tr>
-        </table>
-        <div>
-            <div v-if="gameover" class="endgame">
-                <div class="text">{{endGameText}}</div>
-            </div>
-            <div class="selectSym">
-                <p>Select symbol:</p>
-                <button @click="selectSym('X')">X</button>
-                <button @click="selectSym('O')">O</button>
-            </div>
-            <button style="display: flex;" @click="startGame">Replay</button>
-        </div>
-    </div>
+    <span id="app">
+        <el-container>
+            <el-container style="height: 500px; border: 1px solid #eee">
+                <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+                    <h4 class="controller-head">Controllers:</h4>
+                    <br />
+                    <el-button @click="startGame" style="margin-top:32px;">Replay</el-button>
+                </el-aside>
+
+                <el-container>
+                    <el-header style="text-align: right; font-size: 12px">
+                        <i class="el-icon-setting" style="margin-right: 15px"></i>
+                        <span>Header</span>
+                    </el-header>
+
+                    <el-main>
+                        <table>
+                            <tr>
+                                <td
+                                    @click="turnClick"
+                                    v-for="i in 3"
+                                    :key="i-1"
+                                    :class="className"
+                                    :id="i-1"
+                                ></td>
+                            </tr>
+                            <tr>
+                                <td
+                                    @click="turnClick"
+                                    v-for="i in 3"
+                                    :key="i+2"
+                                    :class="className"
+                                    :id="i+2"
+                                ></td>
+                            </tr>
+                            <tr>
+                                <td
+                                    @click="turnClick"
+                                    v-for="i in 3"
+                                    :key="i+5"
+                                    :class="className"
+                                    :id="i+5"
+                                ></td>
+                            </tr>
+                        </table>
+                        <el-dialog
+                            title="Tips: Please choose a symbol, except you get random by default. "
+                            :visible.sync="selectTag"
+                            width="30%"
+                        >
+                            <div class="selectSym">
+                                <p>Select symbol:</p>
+                                <el-button @click="selectSym('X')">X</el-button>
+                                <el-button @click="selectSym('O')">O</el-button>
+                            </div>
+                        </el-dialog>
+                        <el-dialog
+                            title="Warning"
+                            :visible.sync="gameover"
+                            width="30%"
+                            center
+                        >
+                            <span>{{winState}}</span>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button
+                                    type="success"
+                                    @click="startGame"
+                                >Play Again</el-button>
+                            </span>
+                        </el-dialog>
+                    </el-main>
+                </el-container>
+            </el-container>
+        </el-container>
+    </span>
 </template>
 
 <script>
@@ -30,15 +81,16 @@ export default {
     name: "App",
     data() {
         return {
-            className: "cell",
+            className: "cells",
             gameover: false,
             disabled: false,
             winner: false,
+            winState: false,
             cells: null,
+            selectTag: false,
             origBoard: [],
             huPlayer: "O",
             aiPlayer: "X",
-            endGameText: "Gameover",
             winCombos: [
                 [0, 1, 2],
                 [3, 4, 5],
@@ -55,19 +107,21 @@ export default {
         startGame() {
             this.origBoard = Array.from(Array(9).keys());
             this.disabled = false;
+            this.selectTag = true;
+            this.gameover = false;
             this.cells.forEach(element => {
                 element.innerText = "";
                 element.style.removeProperty("background-color");
             });
         },
         selectSym(sym) {
+            this.selectTag = false;
             this.huPlayer = sym;
             this.aiPlayer = sym === "O" ? "X" : "O";
             this.origBoard = Array.from(Array(9).keys());
             if (this.aiPlayer === "X") {
                 this.turn(this.bestSpot(), this.aiPlayer);
             }
-            document.querySelector(".selectSym").style.display = "none";
         },
         turnClick(square) {
             if (
@@ -75,14 +129,14 @@ export default {
                 !this.disabled
             ) {
                 this.turn(square.target.id, this.huPlayer);
-                if (!this.checkTie() && !this.winner) this.turn(this.bestSpot(), this.aiPlayer);
+                if (!this.checkTie() && !this.winner)
+                    this.turn(this.bestSpot(), this.aiPlayer);
             }
         },
         turn(squareId, player) {
             this.origBoard[squareId] = player;
             document.getElementById(squareId).innerText = player;
             let gameWon = this.checkWin(player);
-            console.log(player, gameWon, "gameOver");
             if (gameWon) this.gameOver(gameWon);
         },
         emptySquares() {
@@ -93,17 +147,17 @@ export default {
         },
         checkTie() {
             if (this.emptySquares().length === 0 && !this.winner) {
-                for (let cell of this.cells) {
-                    cell.style.backgroundColor = "green";
-                }
-                this.declareWinner("Tie game");
+                // for (let cell of this.cells) {
+                //     cell.style.backgroundColor = "green";
+                // }
+                this.declareWinner("tie");
                 return true;
             }
             return false;
         },
         declareWinner(who) {
             this.gameover = true;
-            this.endGameText = who;
+            this.winState = who;
         },
         checkWin(player) {
             let plays = this.origBoard.reduce(
@@ -127,7 +181,7 @@ export default {
 
             this.disabled = true;
             this.declareWinner(
-                gameWon.player === this.huPlayer ? "You win!" : "You lose"
+              this.winState = gameWon.player === this.huPlayer ?  'win' : 'lose'
             );
         }
     },
@@ -139,14 +193,6 @@ export default {
 </script>
 
 <style>
-#app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-}
 td {
     border: 2px solid #333;
     height: 100px;
@@ -163,7 +209,7 @@ table {
     position: absolute;
     left: 50%;
     margin-left: -155px;
-    top: 50px;
+    top: 100px;
 }
 
 table tr:first-child td {
@@ -198,18 +244,9 @@ table tr td:last-child {
 }
 
 .selectSym {
-    display: none;
-    width: 220px;
-    top: 110px;
-    background-color: rgba(205, 133, 63, 0.8);
-    position: absolute;
-    left: 50%;
-    margin-left: -110px;
-    padding-top: 10px;
-    padding-bottom: 50px;
+    /* padding-bottom: 50px; */
     text-align: center;
     border-radius: 5px;
-    color: yellow;
     font-size: 2em;
 }
 
@@ -224,5 +261,22 @@ table tr td:last-child {
 }
 .selectSym button:last-of-type {
     margin-left: 10px;
+}
+
+.el-header {
+    background-color: #b3c0d1;
+    color: #333;
+    line-height: 60px;
+}
+
+.el-aside {
+    color: #333;
+}
+
+.controller-head {
+    padding: 14px;
+    background: rgb(130, 144, 163);
+    height: 32px;
+    margin-top: 0px;
 }
 </style>
