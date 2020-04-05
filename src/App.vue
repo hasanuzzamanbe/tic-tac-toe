@@ -5,13 +5,27 @@
                 <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
                     <h4 class="controller-head">Controllers:</h4>
                     <br />
-                    <el-button @click="startGame" style="margin-top:32px;">Replay</el-button>
+
+                    <div style="margin:32px;">
+                        <el-button @click="startGame" type="primary" plain>
+                            <span v-if="winState==''">Play</span>
+                            <span v-else-if="winState=='playing'">Playing....</span>
+                            <span v-else>Play again</span>
+                        </el-button>
+
+                        <el-divider></el-divider>
+                        <div>
+                            <p>Your symbol:</p>
+                            <div class="choose-sign">{{huPlayer}}</div>
+                        </div>
+                    </div>
                 </el-aside>
 
                 <el-container>
-                    <el-header style="text-align: right; font-size: 12px">
+                    <el-header style="text-align: right; font-size: 15px; color:'green';">
                         <i class="el-icon-setting" style="margin-right: 15px"></i>
-                        <span>Header</span>
+                        <span v-if="winState == ''">Click the play button</span>
+                        <span v-else :class="winState+'color'">You {{winState == 'playing' ? "are playing" : winState}} this game</span>
                     </el-header>
 
                     <el-main>
@@ -50,7 +64,7 @@
                         <el-dialog
                             title="Tips: Please choose a symbol, except you get random by default. "
                             :visible.sync="selectTag"
-                            width="30%"
+                            width="250px"
                         >
                             <div class="selectSym">
                                 <p>Select symbol:</p>
@@ -58,18 +72,27 @@
                                 <el-button @click="selectSym('O')">O</el-button>
                             </div>
                         </el-dialog>
-                        <el-dialog
-                            title="Warning"
-                            :visible.sync="gameover"
-                            width="30%"
-                            center
-                        >
-                            <span>{{winState}}</span>
+                        <el-dialog title="Game Over" :visible.sync="gameover" width="250px" center>
+                            <!-- <span>{{winState}}</span> -->
+                            <img
+                                width="200"
+                                v-if="winState=='lose'"
+                                src="./assets/lose.png"
+                                alt="Lose"
+                            />
+                            <img
+                                width="200"
+                                v-if="winState=='win'"
+                                src="./assets/win.gif"
+                                alt="Win"
+                            />
+                            <div v-if="winState=='tie'">
+                                <h3 style="text-align:center;">Tie game</h3>
+                                <img width="200" src="./assets/tie.png" alt="Tie" />
+                            </div>
+
                             <span slot="footer" class="dialog-footer">
-                                <el-button
-                                    type="success"
-                                    @click="startGame"
-                                >Play Again</el-button>
+                                <el-button type="success" @click="startGame">Play Again</el-button>
                             </span>
                         </el-dialog>
                     </el-main>
@@ -87,7 +110,7 @@ export default {
             gameover: false,
             disabled: false,
             winner: false,
-            winState: 'playing',
+            winState: "",
             cells: null,
             selectTag: false,
             origBoard: [],
@@ -115,7 +138,7 @@ export default {
                 element.innerText = "";
                 element.style.removeProperty("background-color");
             });
-            this.winState = 'playing'
+            this.winState = "playing";
         },
         selectSym(sym) {
             this.selectTag = false;
@@ -180,13 +203,13 @@ export default {
             }
             this.disabled = true;
             this.declareWinner(
-              this.winState = gameWon.player === this.huPlayer ?  'win' : 'lose'
+                (this.winState =
+                    gameWon.player === this.huPlayer ? "win" : "lose")
             );
         }
     },
     mounted() {
         this.cells = document.querySelectorAll(".cell");
-        this.startGame();
     }
 };
 </script>
@@ -279,6 +302,21 @@ table tr td:last-child {
     margin-top: 0px;
 }
 .tie {
-    background:#46be46;;
+    background: #46be46;
+}
+.choose-sign {
+    font-size: 5em;
+}
+.playingcolor {
+     color:rgb(6, 66, 114);
+}
+.wincolor {
+    color:green;
+}
+.losecolor {
+    color:rgb(233, 52, 6);
+}
+.tiecolor {
+    color:rgb(124, 116, 5);
 }
 </style>

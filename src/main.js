@@ -9,7 +9,11 @@ import {
   Header,
   Main,
   Aside,
-  Dialog
+  Dialog,
+  Row,
+  Col,
+  Divider,
+  Popover
 } from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
@@ -21,6 +25,10 @@ Vue.use(Header);
 Vue.use(Main);
 Vue.use(Aside);
 Vue.use(Dialog);
+Vue.use(Row);
+Vue.use(Col);
+Vue.use(Divider);
+Vue.use(Popover);
 new Vue({
   render: h => h(App),
 }).$mount('#app')
