@@ -171,10 +171,12 @@ export default {
             this.playingBoard[squareId] = player;
             document.getElementById(squareId).innerText = player;
             let gameWon = this.checkWin(player);
+            this.checkTie();
             if (gameWon) this.gameOver(gameWon);
         },
         emptySquares() {
-            return this.playingBoard.filter(s => typeof s == "number");
+            let pos = this.playingBoard.filter(s => typeof s == "number");
+            return pos.sort(() => Math.random() - 0.5);
         },
         bestSpot() {
             return this.emptySquares()[0];
