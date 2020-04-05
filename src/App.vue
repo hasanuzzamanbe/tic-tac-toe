@@ -8,9 +8,15 @@
 
                     <div style="margin:32px;">
                         <el-button @click="startGame" type="primary" plain>
-                            <span v-if="winState==''">Play</span>
-                            <span v-else-if="winState=='playing'">Playing....</span>
-                            <span v-else>Play again</span>
+                            <span v-if="winState==''">
+                                <i class="el-icon-video-play"></i> Play
+                            </span>
+                            <span v-else-if="winState=='playing'">
+                                <i class="el-icon-video-pause"></i> Playing...
+                            </span>
+                            <span v-else>
+                                <i class="el-icon-refresh-right"></i> Play again
+                            </span>
                         </el-button>
 
                         <el-divider></el-divider>
@@ -22,10 +28,13 @@
                 </el-aside>
 
                 <el-container>
-                    <el-header style="text-align: right; font-size: 15px; color:'green';">
+                    <el-header class="container-header">
                         <i class="el-icon-setting" style="margin-right: 15px"></i>
                         <span v-if="winState == ''">Click the play button</span>
-                        <span v-else :class="winState+'color'">You {{winState == 'playing' ? "are playing" : winState}} this game</span>
+                        <span
+                            v-else
+                            :class="winState+'color'"
+                        >You {{winState == 'playing' ? "are playing" : winState}} this game</span>
                     </el-header>
 
                     <el-main>
@@ -73,7 +82,6 @@
                             </div>
                         </el-dialog>
                         <el-dialog title="Game Over" :visible.sync="gameover" width="250px" center>
-                            <!-- <span>{{winState}}</span> -->
                             <img
                                 width="200"
                                 v-if="winState=='lose'"
@@ -113,7 +121,7 @@ export default {
             winState: "",
             cells: null,
             selectTag: false,
-            origBoard: [],
+            playingBoard: [],
             huPlayer: "O",
             aiPlayer: "X",
             winCases: [
@@ -130,7 +138,7 @@ export default {
     },
     methods: {
         startGame() {
-            this.origBoard = Array.from(Array(9).keys());
+            this.playingBoard = Array.from(Array(9).keys());
             this.disabled = false;
             this.selectTag = true;
             this.gameover = false;
@@ -144,14 +152,14 @@ export default {
             this.selectTag = false;
             this.huPlayer = sym;
             this.aiPlayer = sym === "O" ? "X" : "O";
-            this.origBoard = Array.from(Array(9).keys());
+            this.playingBoard = Array.from(Array(9).keys());
             if (this.aiPlayer === "X") {
                 this.turn(this.bestSpot(), this.aiPlayer);
             }
         },
         turnClick(square) {
             if (
-                typeof this.origBoard[square.target.id] == "number" &&
+                typeof this.playingBoard[square.target.id] == "number" &&
                 !this.disabled
             ) {
                 this.turn(square.target.id, this.huPlayer);
@@ -160,13 +168,13 @@ export default {
             }
         },
         turn(squareId, player) {
-            this.origBoard[squareId] = player;
+            this.playingBoard[squareId] = player;
             document.getElementById(squareId).innerText = player;
             let gameWon = this.checkWin(player);
             if (gameWon) this.gameOver(gameWon);
         },
         emptySquares() {
-            return this.origBoard.filter(s => typeof s == "number");
+            return this.playingBoard.filter(s => typeof s == "number");
         },
         bestSpot() {
             return this.emptySquares()[0];
@@ -181,9 +189,12 @@ export default {
         declareWinner(who) {
             this.gameover = true;
             this.winState = who;
+            setTimeout(() => {
+                this.gameover = false;
+            }, 2000);
         },
         checkWin(player) {
-            let plays = this.origBoard.reduce(
+            let plays = this.playingBoard.reduce(
                 (a, e, i) => (e === player ? a.concat(i) : a),
                 []
             );
@@ -308,15 +319,21 @@ table tr td:last-child {
     font-size: 5em;
 }
 .playingcolor {
-     color:rgb(6, 66, 114);
+    color: rgb(6, 66, 114);
 }
 .wincolor {
-    color:green;
+    color: green;
 }
 .losecolor {
-    color:rgb(233, 52, 6);
+    color: rgb(233, 52, 6);
 }
 .tiecolor {
-    color:rgb(124, 116, 5);
+    color: rgb(124, 116, 5);
+}
+.container-header {
+    text-align: right;
+    font-family: monospace;
+    font-size: 15px;
+    color: "green";
 }
 </style>
