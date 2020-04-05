@@ -21,7 +21,8 @@
                                     @click="turnClick"
                                     v-for="i in 3"
                                     :key="i-1"
-                                    :class="className"
+                                    class="cell"
+                                    :class="winState"
                                     :id="i-1"
                                 ></td>
                             </tr>
@@ -30,7 +31,8 @@
                                     @click="turnClick"
                                     v-for="i in 3"
                                     :key="i+2"
-                                    :class="className"
+                                    class="cell"
+                                    :class="winState"
                                     :id="i+2"
                                 ></td>
                             </tr>
@@ -39,7 +41,8 @@
                                     @click="turnClick"
                                     v-for="i in 3"
                                     :key="i+5"
-                                    :class="className"
+                                    class="cell"
+                                    :class="winState"
                                     :id="i+5"
                                 ></td>
                             </tr>
@@ -81,17 +84,16 @@ export default {
     name: "App",
     data() {
         return {
-            className: "cells",
             gameover: false,
             disabled: false,
             winner: false,
-            winState: false,
+            winState: 'playing',
             cells: null,
             selectTag: false,
             origBoard: [],
             huPlayer: "O",
             aiPlayer: "X",
-            winCombos: [
+            winCases: [
                 [0, 1, 2],
                 [3, 4, 5],
                 [6, 7, 8],
@@ -113,6 +115,7 @@ export default {
                 element.innerText = "";
                 element.style.removeProperty("background-color");
             });
+            this.winState = 'playing'
         },
         selectSym(sym) {
             this.selectTag = false;
@@ -147,9 +150,6 @@ export default {
         },
         checkTie() {
             if (this.emptySquares().length === 0 && !this.winner) {
-                // for (let cell of this.cells) {
-                //     cell.style.backgroundColor = "green";
-                // }
                 this.declareWinner("tie");
                 return true;
             }
@@ -165,7 +165,7 @@ export default {
                 []
             );
             this.winner = null;
-            for (let [index, win] of this.winCombos.entries()) {
+            for (let [index, win] of this.winCases.entries()) {
                 if (win.every(elem => plays.indexOf(elem) > -1)) {
                     this.winner = { index: index, player: player };
                     break;
@@ -174,11 +174,10 @@ export default {
             return this.winner;
         },
         gameOver(gameWon) {
-            for (let index of this.winCombos[gameWon.index]) {
+            for (let index of this.winCases[gameWon.index]) {
                 document.getElementById(index).style.backgroundColor =
-                    gameWon.player == this.huPlayer ? "blue" : "red";
+                    gameWon.player == this.huPlayer ? "#409eff" : "red";
             }
-
             this.disabled = true;
             this.declareWinner(
               this.winState = gameWon.player === this.huPlayer ?  'win' : 'lose'
@@ -186,7 +185,7 @@ export default {
         }
     },
     mounted() {
-        this.cells = document.querySelectorAll("." + this.className);
+        this.cells = document.querySelectorAll(".cell");
         this.startGame();
     }
 };
@@ -278,5 +277,8 @@ table tr td:last-child {
     background: rgb(130, 144, 163);
     height: 32px;
     margin-top: 0px;
+}
+.tie {
+    background:#46be46;;
 }
 </style>
