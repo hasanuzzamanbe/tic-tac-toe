@@ -175,8 +175,12 @@ export default {
             if (gameWon) this.gameOver(gameWon);
         },
         emptySquares() {
-            let pos = this.playingBoard.filter(s => typeof s == "number");
-            return pos.sort(() => Math.random() - 0.5);
+            let pos = this.playingBoard.filter(s => typeof s == "number");      
+            if ((Math.ceil(Math.random() * 2)) == 1) {
+                return pos;
+            } else {
+                return pos.sort(() => Math.random() - 0.5);
+            }
         },
         bestSpot() {
             return this.emptySquares()[0];
