@@ -1,4 +1,4 @@
-
+@import '~element-ui/lib/theme-chalk/index.css';
 td {
     border: 2px solid #333;
     height: 100px;
