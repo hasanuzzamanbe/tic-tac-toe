@@ -183,7 +183,139 @@ export default {
             }
         },
         bestSpot() {
-            return this.emptySquares()[0];
+            let emptyCells = this.emptySquares();
+            let wp = this.winingPosition();
+            let dp = this.defendingPosition();
+        
+            if(wp != 9)
+                return wp;
+            if(dp != 9)
+              return dp;
+            
+            return emptyCells[0];
+        },
+
+        winingPosition()
+        {
+            let aiCount = 0;
+            this.playingBoard.forEach(cell => {
+                if(cell === this.aiPlayer)
+                    aiCount++;
+            })
+
+            if(aiCount >= 2)
+             {
+                for(let [index] of this.winCases.entries())
+                {
+                    let aiInWinCaseCount = 0,  huInWinCaseCount = 0, winpos0 = 0, winpos1 = 0, winpos2 = 0;
+                    
+                    //aiInWinningCassesCount
+                    if(this.playingBoard[this.winCases[index][0]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                        winpos0 = 1;
+                    }
+                    if(this.playingBoard[this.winCases[index][1]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                        winpos1 = 1;
+                    }
+                    if(this.playingBoard[this.winCases[index][2]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                        winpos2 = 1;
+                    }
+
+                    ////humanInWinningCassesCount
+                    if(this.playingBoard[this.winCases[index][0]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+
+                    }
+                    if(this.playingBoard[this.winCases[index][1]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+      
+                    }
+                    if(this.playingBoard[this.winCases[index][2]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+
+                    }
+
+                    if(aiInWinCaseCount == 2 && huInWinCaseCount == 0)
+                    {
+                        if(winpos0 == 0 )
+                            return this.winCases[index][0];
+                        if(winpos1 == 0 )
+                            return this.winCases[index][1];
+                        if(winpos2 == 0 )
+                            return this.winCases[index][2];
+                    }
+
+                }
+             }
+
+            return 9;
+        },
+
+        defendingPosition(){
+            let huCount = 0;
+            this.playingBoard.forEach(cell => {
+                if(cell === this.huPlayer)
+                    huCount++;
+            })
+            if(huCount >= 2){
+                for(let [index] of this.winCases.entries())
+                {
+                    let aiInWinCaseCount = 0,  huInWinCaseCount = 0, winpos0 = 0, winpos1 = 0, winpos2 = 0;
+                    
+                    ////aiInWinningCassesCount
+                    if(this.playingBoard[this.winCases[index][0]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                    }
+                    if(this.playingBoard[this.winCases[index][1]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                    }
+                    if(this.playingBoard[this.winCases[index][2]] === this.aiPlayer)
+                    {
+                        aiInWinCaseCount++;
+                    }
+
+                    //humanInWinningCassesCount
+                    if(this.playingBoard[this.winCases[index][0]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+                        winpos0++;
+
+                    }
+                    if(this.playingBoard[this.winCases[index][1]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+                        winpos1++;
+                    }
+                    if(this.playingBoard[this.winCases[index][2]] === this.huPlayer)
+                    {
+                        huInWinCaseCount++;
+                        winpos2++;
+                    }
+
+                    if(aiInWinCaseCount == 0 && huInWinCaseCount == 2)
+                    {
+                        if(winpos0 == 0 )
+                            return this.winCases[index][0];
+                        if(winpos1 == 0 )
+                            return this.winCases[index][1];
+                        if(winpos2 == 0 )
+                            return this.winCases[index][2];
+                    }
+
+                }
+            }   
+            
+            return 9;
         },
         checkTie() {
             if (this.emptySquares().length === 0 && !this.winner) {
