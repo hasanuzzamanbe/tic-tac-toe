@@ -133,7 +133,9 @@ export default {
                 [2, 5, 8],
                 [1, 4, 7],
                 [0, 3, 6]
-            ]
+            ],
+            cornerSquares: [0,2,6,8],
+            middileSquares: [1,3,5,7]
         };
     },
     methods: {
@@ -185,23 +187,16 @@ export default {
         bestSpot() {
             let emptyCells = this.emptySquares();
             let wp = this.winingPosition();
-            let dp = this.defendingPosition();
-
-            //here 9 is an out of index number
+        
             if(wp != 9)
                 return wp;
-            if(dp != 9)
-              return dp;
-            
-            //check for best possible position
-            if(dp == 9){
-                let bestPosition = this.prirorityBasedBestPosition();
-                if(bestPosition != 9)
-                {
-                    return bestPosition;
-                }
+    
+            let bestPosition = this.prirorityBasedBestPosition();
+            if(bestPosition != 9)
+            {
+                return bestPosition;
             }
-            
+
             return emptyCells[0];
         },
 
@@ -268,65 +263,6 @@ export default {
 
             return 9;
         },
-
-        defendingPosition(){
-            let huCount = 0;
-            this.playingBoard.forEach(cell => {
-                if(cell === this.huPlayer)
-                    huCount++;
-            })
-            if(huCount >= 2){
-                for(let [index] of this.winCases.entries())
-                {
-                    let aiInWinCaseCount = 0,  huInWinCaseCount = 0, winpos0 = 0, winpos1 = 0, winpos2 = 0;
-                    
-                    ////aiInWinningCassesCount
-                    if(this.playingBoard[this.winCases[index][0]] === this.aiPlayer)
-                    {
-                        aiInWinCaseCount++;
-                    }
-                    if(this.playingBoard[this.winCases[index][1]] === this.aiPlayer)
-                    {
-                        aiInWinCaseCount++;
-                    }
-                    if(this.playingBoard[this.winCases[index][2]] === this.aiPlayer)
-                    {
-                        aiInWinCaseCount++;
-                    }
-
-                    //humanInWinningCassesCount
-                    if(this.playingBoard[this.winCases[index][0]] === this.huPlayer)
-                    {
-                        huInWinCaseCount++;
-                        winpos0++;
-
-                    }
-                    if(this.playingBoard[this.winCases[index][1]] === this.huPlayer)
-                    {
-                        huInWinCaseCount++;
-                        winpos1++;
-                    }
-                    if(this.playingBoard[this.winCases[index][2]] === this.huPlayer)
-                    {
-                        huInWinCaseCount++;
-                        winpos2++;
-                    }
-
-                    if(aiInWinCaseCount == 0 && huInWinCaseCount == 2)
-                    {
-                        if(winpos0 == 0 )
-                            return this.winCases[index][0];
-                        if(winpos1 == 0 )
-                            return this.winCases[index][1];
-                        if(winpos2 == 0 )
-                            return this.winCases[index][2];
-                    }
-
-                }
-            }   
-            
-            return 9;
-        },
         prirorityBasedBestPosition(){
            
             let prioritymap = new Array(9);
@@ -335,7 +271,7 @@ export default {
                 prioritymap[e] = 1;
                 if(typeof e != 'number')
                     prioritymap[e] = 0;
-                console.log(' pp', e, ' ', prioritymap[e]);
+            
                 if(prioritymap[e] == 1)
                 {
                     let pr = 1;
@@ -344,27 +280,87 @@ export default {
                     {
                         if(this.winCases[index].includes(e))
                         {
-                            if(this.winCases[index][0] != this.aiPlayer && this.winCases[index][1] != this.aiPlayer && this.winCases[index][2] != this.aiPlayer)
+                            if(
+                                this.playingBoard[this.winCases[index][0]] != this.aiPlayer
+                                 && this.playingBoard[this.winCases[index][1]] != this.aiPlayer
+                                  && this.playingBoard[this.winCases[index][2]] != this.aiPlayer
+                                )
                             {
                                 pr++;
+                                let times = 0;
+                                //check how many times huPlayer exists on this winCase
+                                if(this.playingBoard[this.winCases[index][0]] == this.huPlayer)
+                                    times++;
+                                if(this.playingBoard[this.winCases[index][1]] == this.huPlayer)
+                                    times++;
+                                if(this.playingBoard[this.winCases[index][2]] == this.huPlayer)
+                                    times++;
+                                // increase priority if there is huPlayer exists;
+                                if(
+                                    this.playingBoard[this.winCases[index][0]] == this.huPlayer
+                                     || this.playingBoard[this.winCases[index][1]] == this.huPlayer 
+                                     || this.playingBoard[this.winCases[index][2]] == this.huPlayer
+                                     )
+                                {
+        
+                                    pr++;
+                                }
+                                /* if huPlayer exist more than one than increase priority by 4,
+                                 4 is just a huge number in this context. this position should have the highest priority */
+                                if(times == 2)
+                                    pr+=4;
                             }
+
+
                         }
                     }
 
                     prioritymap[e] = pr;
+
                 }
             })
 
             let bestPosition = 9, mx = 1;
-
+        
             prioritymap.forEach((el, index) => {
                 if(typeof el == "number" && el > mx){
-                    // console.log("mx index: ", el);
                     mx = el;
                     bestPosition = index;
                 }
             })
+
+            //check for same priority cases
+            let howManyCornerHasMax = 0;
+            let howManyCornerHasHu = 0;
+
+            prioritymap.forEach((el,index) => {
+                if(el == mx && this.cornerSquares.includes(index))
+                {
+                    howManyCornerHasMax++;
+                }
+            })
+
+            this.playingBoard.forEach((el, index) => {
+                
+                if(this.cornerSquares.includes(index) && el === this.huPlayer)
+                {
+                    howManyCornerHasHu++;
+                }
+            })
             
+            console.log('index ', howManyCornerHasHu);
+            mx = 1;
+
+            if(howManyCornerHasMax >= 2 && howManyCornerHasHu >= 2){
+                prioritymap.forEach((el, index) => {
+                    if(typeof el == "number" &&  this.middileSquares.includes(index) && el > mx){
+                        console.log("mx index: ", el);
+                        mx = el;
+                        bestPosition = index;
+                    }
+                })
+            }
+               
             return bestPosition;
         },
         checkTie() {
