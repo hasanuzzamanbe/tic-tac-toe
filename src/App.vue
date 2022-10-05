@@ -186,11 +186,21 @@ export default {
             let emptyCells = this.emptySquares();
             let wp = this.winingPosition();
             let dp = this.defendingPosition();
-        
+
+            //here 9 is an out of index number
             if(wp != 9)
                 return wp;
             if(dp != 9)
               return dp;
+            
+            //check for best possible position
+            if(dp == 9){
+                let bestPosition = this.prirorityBasedBestPosition();
+                if(bestPosition != 9)
+                {
+                    return bestPosition;
+                }
+            }
             
             return emptyCells[0];
         },
@@ -316,6 +326,46 @@ export default {
             }   
             
             return 9;
+        },
+        prirorityBasedBestPosition(){
+           
+            let prioritymap = new Array(9);
+
+            this.playingBoard.forEach(e => {
+                prioritymap[e] = 1;
+                if(typeof e != 'number')
+                    prioritymap[e] = 0;
+                console.log(' pp', e, ' ', prioritymap[e]);
+                if(prioritymap[e] == 1)
+                {
+                    let pr = 1;
+
+                    for(let [index] of this.winCases.entries())
+                    {
+                        if(this.winCases[index].includes(e))
+                        {
+                            if(this.winCases[index][0] != this.aiPlayer && this.winCases[index][1] != this.aiPlayer && this.winCases[index][2] != this.aiPlayer)
+                            {
+                                pr++;
+                            }
+                        }
+                    }
+
+                    prioritymap[e] = pr;
+                }
+            })
+
+            let bestPosition = 9, mx = 1;
+
+            prioritymap.forEach((el, index) => {
+                if(typeof el == "number" && el > mx){
+                    // console.log("mx index: ", el);
+                    mx = el;
+                    bestPosition = index;
+                }
+            })
+            
+            return bestPosition;
         },
         checkTie() {
             if (this.emptySquares().length === 0 && !this.winner) {
