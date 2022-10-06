@@ -12,10 +12,8 @@ td {
 
 table {
     border-collapse: collapse;
-    position: absolute;
-    left: 50%;
-    margin-left: -155px;
-    top: 100px;
+    max-width: 310px;
+    margin: 0 auto;
 }
 
 table tr:first-child td {
@@ -104,7 +102,6 @@ table tr td:last-child {
     color: rgb(124, 116, 5);
 }
 .container-header {
-    text-align: right;
     font-family: monospace;
     font-size: 15px;
     color: "green";

@@ -1,113 +1,106 @@
 <template>
-    <span id="app">
-        <el-container>
-            <el-container style="height: 500px; border: 1px solid #eee">
-                <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-                    <h4 class="controller-head">Controllers:</h4>
-                    <br />
+    <div id="app">
+        <el-row>
+            <el-col :lg="8" :md="8" :sm="24" style="background-color: rgb(238, 241, 246);">
+                <h4 class="controller-head">Controllers:</h4>
+                <br />
+                <div class="container-header" style="margin:0px 32px;">
+                    <i class="el-icon-info" style="margin-right: 15px"></i>
+                    <span v-if="winState == ''">Click the play button</span>
+                    <span
+                        v-else
+                        :class="winState+'color'"
+                    >You {{winState == 'playing' ? "are playing" : winState}} this game</span>
+                </div>
+                <div style="margin:32px;">
+                    <el-button @click="startGame" type="primary" plain>
+                        <span v-if="winState==''">
+                            <i class="el-icon-video-play"></i> Play
+                        </span>
+                        <span v-else-if="winState=='playing'">
+                            <i class="el-icon-video-pause"></i> Playing...
+                        </span>
+                        <span v-else>
+                            <i class="el-icon-refresh-right"></i> Play again
+                        </span>
+                    </el-button>
 
-                    <div style="margin:32px;">
-                        <el-button @click="startGame" type="primary" plain>
-                            <span v-if="winState==''">
-                                <i class="el-icon-video-play"></i> Play
-                            </span>
-                            <span v-else-if="winState=='playing'">
-                                <i class="el-icon-video-pause"></i> Playing...
-                            </span>
-                            <span v-else>
-                                <i class="el-icon-refresh-right"></i> Play again
-                            </span>
-                        </el-button>
-
-                        <el-divider></el-divider>
-                        <div>
-                            <p>Your symbol:</p>
-                            <div class="choose-sign">{{huPlayer}}</div>
-                        </div>
+                    <el-divider></el-divider>
+                    <div>
+                        <p>Your symbol:</p>
+                        <div class="choose-sign">{{huPlayer}}</div>
                     </div>
-                </el-aside>
+                </div>
+            </el-col>
+            <el-col :lg="16" :md="16" :sm="24" style="padding: 32px;">
+                <table>
+                    <tr>
+                        <td
+                            @click="turnClick"
+                            v-for="i in 3"
+                            :key="i-1"
+                            class="cell"
+                            :class="winState"
+                            :id="i-1"
+                        ></td>
+                    </tr>
+                    <tr>
+                        <td
+                            @click="turnClick"
+                            v-for="i in 3"
+                            :key="i+2"
+                            class="cell"
+                            :class="winState"
+                            :id="i+2"
+                        ></td>
+                    </tr>
+                    <tr>
+                        <td
+                            @click="turnClick"
+                            v-for="i in 3"
+                            :key="i+5"
+                            class="cell"
+                            :class="winState"
+                            :id="i+5"
+                        ></td>
+                    </tr>
+                </table>
+                <el-dialog
+                    title="Tips: Please choose a symbol, except you get random by default. "
+                    :visible.sync="selectTag"
+                    width="250px"
+                >
+                    <div class="selectSym">
+                        <p>Select symbol:</p>
+                        <el-button @click="selectSym('X')">X</el-button>
+                        <el-button @click="selectSym('O')">O</el-button>
+                    </div>
+                </el-dialog>
+                <el-dialog title="Game Over" :visible.sync="gameover" width="250px" center>
+                    <img
+                        width="200"
+                        v-if="winState=='lose'"
+                        src="./assets/lose.png"
+                        alt="Lose"
+                    />
+                    <img
+                        width="200"
+                        v-if="winState=='win'"
+                        src="./assets/win.gif"
+                        alt="Win"
+                    />
+                    <div v-if="winState=='tie'">
+                        <h3 style="text-align:center;">Tie game</h3>
+                        <img width="200" src="./assets/tie.png" alt="Tie" />
+                    </div>
 
-                <el-container>
-                    <el-header class="container-header">
-                        <i class="el-icon-setting" style="margin-right: 15px"></i>
-                        <span v-if="winState == ''">Click the play button</span>
-                        <span
-                            v-else
-                            :class="winState+'color'"
-                        >You {{winState == 'playing' ? "are playing" : winState}} this game</span>
-                    </el-header>
-
-                    <el-main>
-                        <table>
-                            <tr>
-                                <td
-                                    @click="turnClick"
-                                    v-for="i in 3"
-                                    :key="i-1"
-                                    class="cell"
-                                    :class="winState"
-                                    :id="i-1"
-                                ></td>
-                            </tr>
-                            <tr>
-                                <td
-                                    @click="turnClick"
-                                    v-for="i in 3"
-                                    :key="i+2"
-                                    class="cell"
-                                    :class="winState"
-                                    :id="i+2"
-                                ></td>
-                            </tr>
-                            <tr>
-                                <td
-                                    @click="turnClick"
-                                    v-for="i in 3"
-                                    :key="i+5"
-                                    class="cell"
-                                    :class="winState"
-                                    :id="i+5"
-                                ></td>
-                            </tr>
-                        </table>
-                        <el-dialog
-                            title="Tips: Please choose a symbol, except you get random by default. "
-                            :visible.sync="selectTag"
-                            width="250px"
-                        >
-                            <div class="selectSym">
-                                <p>Select symbol:</p>
-                                <el-button @click="selectSym('X')">X</el-button>
-                                <el-button @click="selectSym('O')">O</el-button>
-                            </div>
-                        </el-dialog>
-                        <el-dialog title="Game Over" :visible.sync="gameover" width="250px" center>
-                            <img
-                                width="200"
-                                v-if="winState=='lose'"
-                                src="./assets/lose.png"
-                                alt="Lose"
-                            />
-                            <img
-                                width="200"
-                                v-if="winState=='win'"
-                                src="./assets/win.gif"
-                                alt="Win"
-                            />
-                            <div v-if="winState=='tie'">
-                                <h3 style="text-align:center;">Tie game</h3>
-                                <img width="200" src="./assets/tie.png" alt="Tie" />
-                            </div>
-
-                            <span slot="footer" class="dialog-footer">
-                                <el-button type="success" @click="startGame">Play Again</el-button>
-                            </span>
-                        </el-dialog>
-                    </el-main>
-                </el-container>
-            </el-container>
-        </el-container>
-    </span>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="success" @click="startGame">Play Again</el-button>
+                    </span>
+                </el-dialog>
+            </el-col>
+        </el-row>
+    </div>
 </template>
 
 <script>
@@ -177,7 +170,7 @@ export default {
             if (gameWon) this.gameOver(gameWon);
         },
         emptySquares() {
-            let pos = this.playingBoard.filter(s => typeof s == "number");      
+            let pos = this.playingBoard.filter(s => typeof s == "number");
             if ((Math.ceil(Math.random() * 2)) == 1) {
                 return pos;
             } else {
@@ -187,10 +180,10 @@ export default {
         bestSpot() {
             let emptyCells = this.emptySquares();
             let wp = this.winingPosition();
-        
+
             if(wp != 9)
                 return wp;
-    
+
             let bestPosition = this.prirorityBasedBestPosition();
             if(bestPosition != 9)
             {
@@ -213,7 +206,7 @@ export default {
                 for(let [index] of this.winCases.entries())
                 {
                     let aiInWinCaseCount = 0,  huInWinCaseCount = 0, winpos0 = 0, winpos1 = 0, winpos2 = 0;
-                    
+
                     //aiInWinningCassesCount
                     if(this.playingBoard[this.winCases[index][0]] === this.aiPlayer)
                     {
@@ -240,7 +233,7 @@ export default {
                     if(this.playingBoard[this.winCases[index][1]] === this.huPlayer)
                     {
                         huInWinCaseCount++;
-      
+
                     }
                     if(this.playingBoard[this.winCases[index][2]] === this.huPlayer)
                     {
@@ -264,14 +257,14 @@ export default {
             return 9;
         },
         prirorityBasedBestPosition(){
-           
+
             let prioritymap = new Array(9);
 
             this.playingBoard.forEach(e => {
                 prioritymap[e] = 1;
                 if(typeof e != 'number')
                     prioritymap[e] = 0;
-            
+
                 if(prioritymap[e] == 1)
                 {
                     let pr = 1;
@@ -298,11 +291,11 @@ export default {
                                 // increase priority if there is huPlayer exists;
                                 if(
                                     this.playingBoard[this.winCases[index][0]] == this.huPlayer
-                                     || this.playingBoard[this.winCases[index][1]] == this.huPlayer 
+                                     || this.playingBoard[this.winCases[index][1]] == this.huPlayer
                                      || this.playingBoard[this.winCases[index][2]] == this.huPlayer
                                      )
                                 {
-        
+
                                     pr++;
                                 }
                                 /* if huPlayer exist more than one than increase priority by 4,
@@ -321,7 +314,7 @@ export default {
             })
 
             let bestPosition = 9, mx = 1;
-        
+
             prioritymap.forEach((el, index) => {
                 if(typeof el == "number" && el > mx){
                     mx = el;
@@ -341,13 +334,13 @@ export default {
             })
 
             this.playingBoard.forEach((el, index) => {
-                
+
                 if(this.cornerSquares.includes(index) && el === this.huPlayer)
                 {
                     howManyCornerHasHu++;
                 }
             })
-            
+
             console.log('index ', howManyCornerHasHu);
             mx = 1;
 
@@ -360,7 +353,7 @@ export default {
                     }
                 })
             }
-               
+
             return bestPosition;
         },
         checkTie() {
